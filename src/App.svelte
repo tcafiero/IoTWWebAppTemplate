@@ -1,5 +1,5 @@
 <script>
-import jQuery from "jquery"
+//import jQuery from "jquery"
 import IoTwAppHeader from './IoTwAppHeader.svelte';
 import IoTwAppBottomMenu from './IoTwAppBottomMenu.svelte';
 import IoTwAppName from './IoTwAppName.svelte';
