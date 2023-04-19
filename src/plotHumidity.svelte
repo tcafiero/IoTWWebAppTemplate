@@ -23,9 +23,10 @@ client.connect(options);
 // called when the client connects
 function onConnect() {
 	// Once a connection has been made, make a subscription and send a message.
-	console.log("onConnectiii");
+	console.log("onConnect");
 	// client.subscribe("/AirHeritage/"+ServerName+"/#");
-	client.subscribe("GreenhouseKenia");
+	client.subscribe("sensorLab");
+	Plotly.plot('RHchart', data);
 }
 
 function doFail(e){
@@ -39,31 +40,55 @@ function onConnectionLost(responseObject) {
 	}
 }
 
+var value;
+
+var time = new Date();
+
+var data = [{
+  x: [time], 
+  y: [],
+  mode: 'lines',
+  line: {
+	color: '#80CAF6',
+	shape: 'spline',
+	width: 6
+	},
+  type: 'scatter'	
+}]
+
+
+var cnt = 0;
 // called when a message arrives
 function onMessageArrived(message) {
 	console.log("onMessageArrived:"+message.payloadString);
 	const obj = JSON.parse(message.payloadString);
-	if(cnt == 0) {
-		Plotly.plot('RHchart',[{
-			y:[obj.BME280_RH],
-			type:'line'
-		}]);					
-		} else {
-		Plotly.extendTraces('RHchart',{ y:[[obj.BME280_RH]]}, [0]);
-	}
-	cnt++;
-	if(cnt > 30) {
-		Plotly.relayout('RHchart',{
-			xaxis: {
-				range: [cnt-30,cnt]
-			}
-		});
-	}
+	value = obj.BME280_RH;
 }	
 
-			
-var cnt = 0;
-
+var interval = setInterval(function() {
+  
+  var time = new Date();
+  
+  var update = {
+  x:  [[time]],
+  y: [[value]]
+  }
+  
+  var olderTime = time.setMinutes(time.getMinutes() - 1);
+  var futureTime = time.setMinutes(time.getMinutes() + 1);
+  
+  var minuteView = {
+        xaxis: {
+          type: 'date',
+          range: [olderTime,futureTime]
+        }
+      };
+  
+  Plotly.relayout('RHchart', minuteView);
+  Plotly.extendTraces('RHchart', update, [0])
+  
+  //if(cnt === 400) clearInterval(interval);
+}, 250);
 
 </script>
 
